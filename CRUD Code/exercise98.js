@@ -1,0 +1,42 @@
+//get all the published frontend and backend course 
+//sort them by their price in decending order 
+//pick only their name and author and display them
+const mongoose = require('mongoose');
+
+//connection with database 
+
+mongoose.connect('mongodb://localhost/mongo-exercises')
+    .then(() => console.log('Database created'))
+    .catch((err) => console.log('Database Error', err));
+
+//database schema
+
+const courseSchema = new mongoose.Schema({
+    tags: [String],
+    date: { type: Date },
+    name: String,
+    author: String,
+    price: Number,
+    isPublished: Boolean,
+    __v: Number,
+});
+
+//create a class 
+
+const myCourses = mongoose.model('course', courseSchema);
+
+
+async function course() {
+    return await myCourses
+        .find({ isPublished: true, price: { $gte: 15 } })
+        // .find({ isPublished: true, tags: { $in: ['frontend', 'backend'] } }) or we can also use or method
+        .sort({ price: -1 })
+        .select({ name: 1, author: 1, price: 1, tags: 1 });
+}
+
+async function run() {
+    const result = await course()
+    console.log(result);
+}
+
+run()
